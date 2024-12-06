@@ -1,0 +1,108 @@
+#include <iostream>
+#include <queue>
+#include <string>
+#include <iomanip>
+#include <chrono>
+#include <thread>
+
+class Person {
+public:
+    std::string name;
+    int ticket_number;
+
+    Person(const std::string &name, int ticket_number)
+        : name(name), ticket_number(ticket_number) {}
+};
+
+class Queue {
+private:
+    std::queue<Person> line;
+    int ticket_count = 0;
+
+public:
+    void enqueue(const std::string &name) {
+        ticket_count++;
+        Person person(name, ticket_count);
+        line.push(person);
+        std::cout << name << " added to the queue with Ticket #" << std::setw(3) << std::setfill('0') << ticket_count << "\n";
+        std::cout << "Queue size: " << line.size() << "\n";
+    }
+
+    void autoDequeue() {
+        if (!line.empty()) {
+            Person frontPerson = line.front();
+            line.pop();
+            std::cout << "Dequeue: " << frontPerson.name << " received a ticket (Ticket #" << std::setw(3) << std::setfill('0') << frontPerson.ticket_number << ")\n";
+            std::cout << "Queue size: " << line.size() << "\n";
+            if (!line.empty()) {
+                std::cout << "Next in line: " << line.front().name << " (Ticket #" << std::setw(3) << std::setfill('0') << line.front().ticket_number << ")\n";
+            }
+        }
+    }
+
+    bool isEmpty() const {
+        return line.empty();
+    }
+
+    void position(const std::string &identifier) const {
+        std::queue<Person> temp = line;
+        int pos = 0;
+        
+        while (!temp.empty()) {
+            Person person = temp.front();
+            temp.pop();
+            pos++;
+
+            if (person.name == identifier || std::to_string(person.ticket_number) == identifier) {
+                std::cout << identifier << " is currently at position " << pos << " in the queue.\n";
+                return;
+            }
+        }
+        
+        std::cout << identifier << " not found in queue.\n";
+    }
+};
+
+void displayMenu() {
+    std::cout << " 1. Enqueue a person\n";
+    std::cout << " 2. Check your position in the queue\n";
+    std::cout << " 3. Exit\n";
+}
+
+int main() {
+    Queue concertQueue;
+    int choice;
+    std::string name;
+    
+    std::cout << "Welcome to Olivia Rodrigo's Concert Ticketing System!\n";
+    
+    auto lastDequeueTime = std::chrono::steady_clock::now();
+    
+    while (true) {
+        auto currentTime = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::minutes>(currentTime - lastDequeueTime).count() >= 1) {
+            std::cout << "After 1 minute...\n";
+            concertQueue.autoDequeue();
+            lastDequeueTime = currentTime;
+        }
+        
+        displayMenu();
+        std::cout << "Choose an option: ";
+        std::cin >> choice;
+
+        if (choice == 1) {
+            std::cout << "Enter the name: ";
+            std::cin >> name;
+            concertQueue.enqueue(name);
+        } else if (choice == 2) {
+            std::cout << "Enter your name or ticket number: ";
+            std::cin >> name;
+            concertQueue.position(name);
+        } else if (choice == 3) {
+            std::cout << "Exiting the ticketing system.\n";
+            break;
+        }
+    }
+
+    return 0;
+}
