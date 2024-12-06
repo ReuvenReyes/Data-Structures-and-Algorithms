@@ -1,0 +1,50 @@
+#include <iostream>
+#include <vector>
+#include <sstream>
+#include <algorithm>
+#include <cctype>
+using namespace std;
+
+vector<string> splitWords(const string& text) {
+    vector<string> words;
+    stringstream ss(text);
+    string word;
+    while (ss >> word) {
+        words.push_back(word);
+    }
+    return words;
+}
+
+string joinWords(const vector<string>& words) {
+    string result;
+    for (int i = 0; i < words.size(); i++) {
+        if (i > 0) result += " ";
+        result += words[i];
+    }
+    return result;
+}
+
+string rearrangeWords(string text) {
+    vector<string> words = splitWords(text);
+
+    words[0][0] = tolower(words[0][0]);
+
+    stable_sort(words.begin(), words.end(), [](const string& a, const string& b) {
+        return a.size() < b.size();
+    });
+
+    words[0][0] = toupper(words[0][0]);
+
+    return joinWords(words);
+}
+
+int main() {
+    string text1 = "Leetcode is cool";
+    string text2 = "Keep calm and code on";
+    string text3 = "To be or not to he";
+
+    cout << rearrangeWords(text1) << endl; 
+    cout << rearrangeWords(text2) << endl; 
+    cout << rearrangeWords(text3) << endl; 
+    return 0;
+}
