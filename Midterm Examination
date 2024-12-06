@@ -1,0 +1,197 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <iomanip>
+#include <limits>
+#include <sstream>
+
+struct Budget {
+    std::string date;
+    std::string category;
+    double amount;
+};
+
+std::vector<Budget> budgets;
+
+void loadBudgets() {
+    std::ifstream infile("budget.txt");
+    if (infile.is_open()) {
+        Budget budget;
+        while (infile >> budget.date) {
+            infile.ignore(); 
+            std::getline(infile, budget.category);
+            infile >> budget.amount;
+            budgets.push_back(budget);
+        }
+        infile.close();
+    }
+}
+
+void saveBudgets() {
+    std::ofstream outfile("budget.txt");
+    for (const auto& budget : budgets) {
+        outfile << budget.date << ", " 
+                << budget.category << ", " 
+                << "â‚±" << std::fixed << std::setprecision(2) << budget.amount << "\n";
+    }
+    outfile.close();
+}
+
+void addBudget(const std::string& date, const std::string& category, double amount) {
+    budgets.push_back({date, category, amount});
+    saveBudgets();
+}
+
+void displayBudgets() {
+    std::cout << "______ My Budgets _____\n";
+    std::cout << std::setw(5) << "ID" 
+              << std::setw(15) << "Date"
+              << std::setw(15) << "Category"
+              << std::setw(10) << "Amount\n";
+    
+    for (size_t i = 0; i < budgets.size(); ++i) {
+        const auto& budget = budgets[i];
+        std::cout << std::setw(5) << i 
+                  << std::setw(15) << budget.date
+                  << std::setw(15) << budget.category
+                  << std::setw(10) << std::fixed << std::setprecision(2) << "â‚±" << budget.amount << "\n";
+    }
+    std::cout << "__________________________\n";
+}
+
+void deleteBudgets(const std::vector<size_t>& indices) {
+    for (size_t index : indices) {
+        if (index < budgets.size()) {
+            budgets.erase(budgets.begin() + index);
+        }
+    }
+    saveBudgets();
+    std::cout << "Selected budgets deleted successfully.\n";
+}
+
+void updateBudget(size_t index) {
+    if (index < budgets.size()) {
+        std::string date, category;
+        double amount;
+
+        std::cout << "Current Date: " << budgets[index].date << "\n";
+        std::cout << "Enter new date or press Enter to keep the same: ";
+        std::getline(std::cin, date);
+        if (date.empty()) {
+            date = budgets[index].date; 
+        }
+
+        std::cout << "Current Category: " << budgets[index].category << "\n";
+        std::cout << "Enter new category or press Enter to keep the same: ";
+        std::getline(std::cin, category);
+        if (category.empty()) {
+            category = budgets[index].category;
+        }
+
+        std::cout << "Current Amount: â‚±" << budgets[index].amount << "\n";
+        std::cout << "Enter new amount or press Enter to keep the same: ";
+        std::string amountInput;
+        std::getline(std::cin, amountInput);
+        if (!amountInput.empty()) {
+            amount = std::stod(amountInput); 
+        } else {
+            amount = budgets[index].amount; 
+        }
+
+    
+        budgets[index] = {date, category, amount};
+        saveBudgets();
+        std::cout << "Budget updated successfully.\n";
+    } else {
+        std::cout << "Invalid index. No budget updated.\n";
+    }
+}
+
+std::vector<size_t> parseIndices(const std::string& input) {
+    std::vector<size_t> indices;
+    std::stringstream ss(input);
+    size_t index;
+
+    while (ss >> index) {
+        indices.push_back(index);
+    }
+    return indices;
+}
+
+int main() {
+    loadBudgets();
+    std::string date, category;
+    double amount;
+
+    while (true) {
+        std::cout << "1. Add Budget\n";
+        std::cout << "2. Display Budget\n";
+        std::cout << "3. Update Budget\n";
+        std::cout << "4. Delete Budget\n";
+        std::cout << "5. Exit\n";
+        std::cout << "Choose an option: ";
+        
+        int choice;
+        std::cin >> choice;
+        std::cin.ignore(); 
+        
+        switch (choice) {
+            case 1:
+                std::cout << "Enter budget date: ";
+                std::cin >> date;
+                std::cin.ignore(); 
+
+                std::cout << "Enter budget category: ";
+                std::getline(std::cin, category); 
+
+                std::cout << "Enter budget amount: ";
+                while (true) {
+                    std::cin >> amount;
+
+                    if (std::cin.fail()) {
+                        std::cin.clear(); 
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+                        std::cout << "Invalid input. Please enter a valid amount: ";
+                    } else {
+                        break; 
+                    }
+                }
+
+                addBudget(date, category, amount);
+                break;
+
+            case 2:
+                displayBudgets();
+                break;
+
+            case 3: {  
+                displayBudgets();
+                std::cout << "Enter the index of the budget to update: ";
+                size_t index;
+                std::cin >> index;
+                std::cin.ignore(); 
+                updateBudget(index);
+                break;
+            }
+
+            case 4: { 
+                displayBudgets();
+                std::cout << "Enter the indices of the budget to delete: ";
+                std::string input;
+                std::getline(std::cin, input); 
+                auto indices = parseIndices(input);
+                deleteBudgets(indices);
+                break;
+            }
+
+            case 5:
+                return 0;
+
+            default:
+                std::cout << "Invalid option. Please choose again.\n";
+        }
+    }
+
+    return 0;
+}
