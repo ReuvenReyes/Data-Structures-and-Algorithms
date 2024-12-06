@@ -1,0 +1,161 @@
+BEGIN Preparing a Hotdog, Egg, and Rice Breakfast
+
+ 
+
+   # Step 1: Check Ingredients
+
+    IF (rice < required_amount) OR (eggs < required_amount) OR (hotdogs < required_amount) THEN
+
+        DISPLAY "Not enough ingredients. Refill required."
+
+        EXIT
+
+    END IF
+
+ 
+
+   # Step 2: Prepare Cooking Equipment
+
+    IF (rice_cooker.is_dirty) THEN
+
+        CLEAN rice_cooker
+
+    END IF
+
+ 
+
+    IF (frying_pan.is_dirty) THEN
+
+        CLEAN frying_pan
+
+    END IF
+
+ 
+
+    IF (frying_pan.is_broken OR rice_cooker.is_broken) THEN
+
+        DISPLAY "Cooking equipment is not functional."
+
+        EXIT
+
+    END IF
+
+ 
+
+   # Step 3: Cook Rice
+
+    rice = MEASURE rice
+
+    water = MEASURE water FOR rice
+
+    rice_cooker.ADD rice, water
+
+    rice_cooker.START()
+
+ 
+
+    WAIT UNTIL rice_cooker.COMPLETE
+
+ 
+
+    IF rice_cooker.error THEN
+
+        DISPLAY "Error during rice cooking process."
+
+        EXIT
+
+    END IF
+
+ 
+
+   # Step 4: Cook Hotdogs
+
+    IF (user_wants_fried_hotdogs) THEN
+
+        heating_pan.ADD oil
+
+        heating_pan.HEAT()
+
+        hotdogs.ADD TO heating_pan
+
+        FRY hotdogs UNTIL golden_brown
+
+    ELSE
+
+        hotdogs.ADD TO boiling_water
+
+        BOIL UNTIL cooked
+
+    END IF
+
+ 
+
+    IF hotdogs.error THEN
+
+        DISPLAY "Error while cooking hotdogs."
+
+        EXIT
+
+    END IF
+
+ 
+
+   # Step 5: Fry Eggs
+
+    heating_pan.ADD oil
+
+    heating_pan.HEAT()
+
+    eggs.ADD TO heating_pan
+
+ 
+
+    IF (user_prefers_scrambled) THEN
+
+        SCRAMBLE eggs IN heating_pan
+
+    ELSE
+
+        FRY eggs UNTIL desired_doneness
+
+    END IF
+
+ 
+
+    IF eggs.error THEN
+
+        DISPLAY "Error while frying eggs."
+
+        EXIT
+
+    END IF
+
+ 
+
+    # Step 6: Assemble the Meal
+
+    plate.ADD rice
+
+    plate.ADD hotdogs
+
+    plate.ADD eggs
+
+    DISPLAY "Meal is ready to serve!"
+
+ 
+
+    # Step 7: Clean Up
+
+    CLEAN rice_cooker
+
+    CLEAN frying_pan
+
+    STORE remaining ingredients
+
+ 
+
+    DISPLAY "Enjoy your meal!"
+
+ 
+
+END
