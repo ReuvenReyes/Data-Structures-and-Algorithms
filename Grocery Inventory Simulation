@@ -1,0 +1,48 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+
+void Vector_(const vector<string>& vec, const string& label) {
+    cout << label << ": [";
+    for (size_t i = 0; i < vec.size(); ++i) {
+        cout << '"' << vec[i] << '"';
+        if (i != vec.size() - 1) cout << ", ";
+    }
+    cout << "]" << endl;
+}
+
+int main() {
+
+    vector<string> inventory = {"apples", "bananas", "oranges", "pears"};
+    
+
+    vector<string> shipment = {"kiwis", "bananas", "grapes"};
+    
+
+    vector<string> soldOut = {"apples", "oranges"};
+    
+
+    Vector_(inventory, "Current Inventory");
+    Vector_(shipment, "Shipment");
+
+
+    for (const string& item : shipment) {
+        if (find(inventory.begin(), inventory.end(), item) == inventory.end()) {
+            inventory.push_back(item); 
+        }
+    }
+
+
+    for (const string& item : soldOut) {
+        inventory.erase(remove(inventory.begin(), inventory.end(), item), inventory.end());
+    }
+
+
+    Vector_(soldOut, "Sold-out items");
+    Vector_(inventory, "Updated Inventory");
+
+    return 0;
+}
